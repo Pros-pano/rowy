@@ -31,7 +31,7 @@ import Json from "./Json";
 import Code from "./Code";
 import Action from "./Action";
 import Derivative from "./Derivative";
-import Aggregate from "./Aggregate";
+// import Aggregate from "./Aggregate";
 import CreatedBy from "./CreatedBy";
 import UpdatedBy from "./UpdatedBy";
 import CreatedAt from "./CreatedAt";
@@ -39,6 +39,7 @@ import UpdatedAt from "./UpdatedAt";
 import User from "./User";
 import Id from "./Id";
 import Status from "./Status";
+import Connector from "./Connector";
 import { TableColumn } from "../Table";
 
 // Export field configs in order for FieldsDropdown
@@ -68,6 +69,7 @@ export const FIELDS: IFieldConfig[] = [
   Image_,
   File_,
   // CONNECTION
+  Connector,
   SubTable,
   ConnectTable,
   ConnectService,
@@ -77,7 +79,7 @@ export const FIELDS: IFieldConfig[] = [
   // CLOUD FUNCTION
   Action,
   Derivative,
-  Aggregate,
+  // Aggregate,
   Status,
   // AUDITING
   CreatedBy,
@@ -121,9 +123,12 @@ export const hasDataTypes = (dataTypes: string[]) => {
   );
 };
 
-export const getColumnType = (column?: TableColumn) =>
-  !column
-    ? null
-    : column.type === FieldType.derivative
+export const getColumnType = (column: {
+  type: FieldType;
+  config: {
+    renderFieldType: FieldType;
+  };
+}) =>
+  column.type === FieldType.derivative
     ? column.config.renderFieldType
     : column.type;

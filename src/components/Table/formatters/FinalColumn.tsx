@@ -6,8 +6,10 @@ import CopyCellsIcon from "@src/assets/icons/CopyCells";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 
 import { useConfirmation } from "@src/components/ConfirmationDialog/Context";
+import { useAppContext } from "@src/contexts/AppContext";
 import { useProjectContext } from "@src/contexts/ProjectContext";
 import useKeyPress from "@src/hooks/useKeyPress";
+import { isCollectionGroup } from "@src/utils/fns";
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -27,39 +29,36 @@ const useStyles = makeStyles((theme) =>
 export default function FinalColumn({ row }: FormatterProps<any, any>) {
   useStyles();
 
+  const { userClaims } = useAppContext();
   const { requestConfirmation } = useConfirmation();
   const { deleteRow, addRow, table } = useProjectContext();
   const altPress = useKeyPress("Alt");
 
   const handleDelete = () => {
-    if (deleteRow) deleteRow(row.id);
+    if (deleteRow) deleteRow(row.ref);
   };
 
-  if (table?.readOnly) return null;
-
+  if (!userClaims?.roles.includes("ADMIN") && table?.readOnly === true)
+    return null;
   return (
     <Stack direction="row" spacing={0.5}>
-      <Tooltip title="Duplicate row">
-        <IconButton
-          size="small"
-          color="inherit"
-          disabled={!addRow}
-          onClick={() => {
-            const clonedRow = { ...row };
-            // remove metadata
-            delete clonedRow.ref;
-            delete clonedRow.rowHeight;
-            Object.keys(clonedRow).forEach((key) => {
-              if (clonedRow[key] === undefined) delete clonedRow[key];
-            });
-            if (addRow) addRow!(clonedRow, undefined, { type: "smaller" });
-          }}
-          aria-label="Duplicate row"
-          className="row-hover-iconButton"
-        >
-          <CopyCellsIcon />
-        </IconButton>
-      </Tooltip>
+      {!isCollectionGroup() && (
+        <Tooltip title="Duplicate row">
+          <IconButton
+            size="small"
+            color="inherit"
+            disabled={!addRow}
+            onClick={() => {
+              const { ref, ...clonedRow } = row;
+              addRow!(clonedRow, undefined, { type: "smaller" });
+            }}
+            aria-label="Duplicate row"
+            className="row-hover-iconButton"
+          >
+            <CopyCellsIcon />
+          </IconButton>
+        </Tooltip>
+      )}
 
       <Tooltip title={`Delete row${altPress ? "" : "…"}`}>
         <IconButton

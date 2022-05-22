@@ -1,33 +1,22 @@
 import { useEffect } from "react";
 import { useWatch } from "react-hook-form";
 import _camelCase from "lodash/camelCase";
+import {
+  ShortTextComponent,
+  IShortTextComponentProps,
+} from "@rowy/form-builder";
 
-import { TextField, TextFieldProps } from "@mui/material";
-import { IFieldComponentProps, FieldAssistiveText } from "@rowy/form-builder";
-
-export interface ICamelCaseIdProps
-  extends IFieldComponentProps,
-    Omit<
-      TextFieldProps,
-      "variant" | "name" | "label" | "onBlur" | "onChange" | "value" | "ref"
-    > {
+export interface ITableIdProps extends IShortTextComponentProps {
   watchedField?: string;
 }
 
-export default function CamelCaseId({
-  field: { onChange, onBlur, value, ref },
+export default function TableId({ watchedField, ...props }: ITableIdProps) {
+  const {
+    field: { onChange },
+    useFormMethods: { control },
+    disabled,
+  } = props;
 
-  name,
-  useFormMethods: { control },
-
-  errorMessage,
-  assistiveText,
-
-  disabled,
-
-  watchedField,
-  ...props
-}: ICamelCaseIdProps) {
   const watchedValue = useWatch({ control, name: watchedField } as any);
   useEffect(() => {
     if (!disabled && typeof watchedValue === "string" && !!watchedValue)
@@ -35,37 +24,9 @@ export default function CamelCaseId({
   }, [watchedValue, disabled]);
 
   return (
-    <TextField
-      onChange={onChange}
-      onBlur={onBlur}
-      value={value}
-      fullWidth
-      error={!!errorMessage}
-      helperText={
-        (errorMessage || assistiveText) && (
-          <>
-            {errorMessage}
-
-            <FieldAssistiveText style={{ margin: 0 }} disabled={!!disabled}>
-              {assistiveText}
-            </FieldAssistiveText>
-          </>
-        )
-      }
-      FormHelperTextProps={{ component: "div" } as any}
-      name={name}
-      id={`field-${name}`}
-      sx={{ "& .MuiInputBase-input": { fontFamily: "mono" } }}
+    <ShortTextComponent
       {...props}
-      disabled={disabled}
-      inputProps={{
-        required: false,
-        // https://github.com/react-hook-form/react-hook-form/issues/4485
-        disabled: false,
-        readOnly: disabled,
-        style: disabled ? { cursor: "default" } : undefined,
-      }}
-      inputRef={ref}
+      sx={{ "& .MuiInputBase-input": { fontFamily: "mono" } }}
     />
   );
 }
